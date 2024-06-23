@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using System.Transactions;
 using backend.Domain.Enums;
@@ -14,17 +15,16 @@ namespace backend.Domain.Models
         public string Customer { get; set; } = null!;
         public decimal Balance { get; private set; }
         public List<Transaction> Transactions { get; private set; } = new();
-        public Account(decimal initialBalance)
+        public bool Deposit(decimal amount)
         {
-            Balance = initialBalance;
-        }
-        public bool Deposit(decimal amount){
             Balance += amount;
             Transactions.Add(new Transaction(amount, TransactionType.DEPOSIT, TransactionDirection.INCOME));
             return true;
         }
-        public bool Transfer(decimal amount, Account destinationAccount){
-            if(Balance < amount){
+        public bool Transfer(decimal amount, Account destinationAccount)
+        {
+            if (Balance < amount)
+            {
                 return false;
             }
             Balance -= amount;
@@ -32,24 +32,27 @@ namespace backend.Domain.Models
             Transactions.Add(new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.EXPENSE));
             return true;
         }
-        public bool Withdraw(decimal amount){
-            if(Balance < amount){
+        public bool Withdraw(decimal amount)
+        {
+            if (Balance < amount)
+            {
                 return false;
             }
             Balance -= amount;
             Transactions.Add(new Transaction(amount, TransactionType.WITHDRAW, TransactionDirection.EXPENSE));
             return true;
         }
-        public void ReceivedTransfer(decimal amount){
+        public void ReceivedTransfer(decimal amount)
+        {
             Balance += amount;
             Transactions.Add(new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.INCOME));
             return;
         }
         public override string ToString()
         {
-            return $"Account {Id} - Customer: {Customer} - Balance: {Balance}";
+            string aux = "";
+            Transactions.ForEach(transaction => aux += $"{Id} - {Customer} - {transaction}\n");
+            return aux;
         }
-
     }
-
 }

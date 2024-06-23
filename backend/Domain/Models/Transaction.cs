@@ -19,6 +19,9 @@ namespace backend.Domain.Models
             TransactionType = transactionType;
             TransactionDirection = transactionDirection;
         }
-
+        public override string ToString()
+        {
+            return $"Amount: {Balance}, TransactionType: {TransactionType}, TransactionDirection: {TransactionDirection}, Date: {Date}";
         }
     }
+}
