@@ -1,8 +1,8 @@
-namespace backend.Models
+namespace backend.Domain.Enums
 {
     public enum TransactionType
     {
-        WITHDRAWAL, //SAQUE
+        WITHDRAW, //SAQUE
         DEPOSIT,     //DEPOSITO
         TRANSFER     //TRANSFERENCIA
     }
