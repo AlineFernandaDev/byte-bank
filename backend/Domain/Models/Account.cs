@@ -13,45 +13,64 @@ namespace backend.Domain.Models
         private static int _idCounter = 1;
         public readonly int Id = _idCounter++;
         public string Customer { get; set; } = null!;
-        public decimal Balance { get; private set; }
+        public Balance Balance { get; private set; }
         public List<Transaction> Transactions { get; private set; } = new();
+        public Account()
+        {
+            Balance = new Balance(0, "BRL");
+        }
         public bool Deposit(decimal amount)
         {
-            Balance += amount;
-            Transactions.Add(new Transaction(amount, TransactionType.DEPOSIT, TransactionDirection.INCOME));
+            if (amount <= 0)
+            {   
+                Console.WriteLine("Amount must be greater than zero");
+                return false;
+            }
+            var transaction = new Transaction(amount, TransactionType.DEPOSIT, TransactionDirection.INCOME);
+            Balance.UpdateBalance(amount, transaction);
+            Transactions.Add(transaction);
             return true;
         }
         public bool Transfer(decimal amount, Account destinationAccount)
         {
-            if (Balance < amount)
+            if (amount <= 0)
             {
+                Console.WriteLine("Operation not allowed");
                 return false;
             }
-            Balance -= amount;
-            destinationAccount.Balance += amount;
-            Transactions.Add(new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.EXPENSE));
+            var transaction = new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.EXPENSE);
+            Balance.UpdateBalance(-amount, transaction);
+            destinationAccount.ReceivedTransfer(amount);
+            Transactions.Add(transaction);
             return true;
         }
         public bool Withdraw(decimal amount)
         {
-            if (Balance < amount)
+            if (amount <= 0)
             {
+                Console.WriteLine("Operation not allowed");
                 return false;
             }
-            Balance -= amount;
-            Transactions.Add(new Transaction(amount, TransactionType.WITHDRAW, TransactionDirection.EXPENSE));
+            var transaction = new Transaction(amount, TransactionType.WITHDRAW, TransactionDirection.EXPENSE);
+            Balance.UpdateBalance(-amount, transaction);
+            Transactions.Add(transaction);
             return true;
         }
         public void ReceivedTransfer(decimal amount)
         {
-            Balance += amount;
-            Transactions.Add(new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.INCOME));
-            return;
+            if(amount <= 0)
+            {
+                Console.WriteLine("Amount must be greater than zero");
+                return;
+            }
+            var transaction = new Transaction(amount, TransactionType.TRANSFER, TransactionDirection.INCOME);
+            Balance.UpdateBalance(amount, transaction);
+            Transactions.Add(transaction);
         }
         public override string ToString()
         {
             string aux = "";
-            Transactions.ForEach(transaction => aux += $"{Id} - {Customer} - {transaction}\n");
+            Transactions.ForEach(transaction => aux += $"{Id} - {Customer} - {transaction} - {Balance} \n");
             return aux;
         }
     }
